@@ -46,7 +46,7 @@
 (defun nix-require--apply (nix-expr format-string)
   (let ((applied-expr (format format-string (format "(%s)" nix-expr))))
     (substring
-     (nix-eval applied-expr)
+     (nix-eval-raw applied-expr)
      1 -1)))
 
 ;; TODO: Figure out a way to avoid continuously opening up new processes. Perhaps a persistent nix repl?

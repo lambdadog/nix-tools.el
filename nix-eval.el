@@ -15,11 +15,13 @@
 (setq nix-eval--repl nil)
 (setq nix-eval--repl-finished nil)
 
+;;;###autoload
 (defun nix-eval (nix-expr)
   "Evaluate a Nix expression and return the response. If you're going to be making many repeated similar calls a recommended optimization is to let-bind 'nix-eval-strict to nil then run 'nix-eval-clean afterwards to allow nix-repl to cache data."
   (interactive "MNix expression: ")
   (error "Unimplemented"))
 
+;;;###autoload
 (defun nix-eval-raw (nix-expr)
   "Evaluate a Nix expression and return a raw response. All caveats of 'nix-eval apply."
   (interactive "MNix expression: ")
@@ -43,12 +45,12 @@
 	    (message output))
 	  output)))))
 
+;;;###autoload
 (defun nix-eval-clean ()
   "Cleans the nix-eval repl environment. It should only be necessary to run this manually if nix-eval-strict is set to nil."
   (interactive)
   (process-send-string nix-eval--repl ":r\n")
   (nix-eval--wait-on-output nix-eval--repl))
-
 
 (defun nix-eval--init-repl ()
   (setq nix-eval--repl
