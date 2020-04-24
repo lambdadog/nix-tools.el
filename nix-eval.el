@@ -2,15 +2,11 @@
 
 ;;; nix-eval -- Run nix code and receive the results
 (require 'ansi-color) ; used for filtering out ansi codes in output
+(require 'subr-x)
 
 (defgroup nix-eval nil
   "Evaluate nix expressions from elisp"
   :prefix "nix-eval-")
-
-(defcustom nix-eval-strict t
-  "If 'nix-eval-strict is set, 'nix-eval will run :r in the nix repl after every call made. Leads to more correct behavior but will break the caching done by nix repl."
-  :type 'boolean
-  :group 'nix-eval)
 
 (setq nix-eval--repl nil)
 (setq nix-eval--repl-finished nil)
@@ -27,30 +23,36 @@
   (interactive "MNix expression: ")
   (nix-eval--eval-internal nix-expr (called-interactively-p 'interactive)))
 
-(defun nix-eval--eval-internal (nix-expr interactive)
-  ;; Create the process if it's not been already
-  (unless (process-live-p nix-eval--repl)
-    (nix-eval--init-repl)
-    (nix-eval--wait-on-output nix-eval--repl))
-  
-  (let ((buffer (process-buffer nix-eval--repl)))
-    (with-current-buffer buffer
-      (let ((start (point-max)))
-	(process-send-string nix-eval--repl (format "%s\n" nix-expr))
-	(nix-eval--wait-on-output nix-eval--repl)
-	(let ((output (buffer-substring start (- (point-max) 1))))
-	  (when nix-eval-strict
-	    (nix-eval-clean))
-	  (when interactive
-	    (message output))
-	  output)))))
+(defun nix-eval--eval-internal (nix-expr &optional interactive)
+  (when (nix-eval--expr-valid-p nix-expr interactive)
 
-;;;###autoload
-(defun nix-eval-clean ()
-  "Cleans the nix-eval repl environment. It should only be necessary to run this manually if nix-eval-strict is set to nil."
-  (interactive)
-  (process-send-string nix-eval--repl ":r\n")
-  (nix-eval--wait-on-output nix-eval--repl))
+    ;; Create the process if it's not been already
+    (unless (process-live-p nix-eval--repl)
+      (nix-eval--init-repl)
+      (nix-eval--wait-on-output nix-eval--repl))
+
+    (let ((buffer (process-buffer nix-eval--repl)))
+      (with-current-buffer buffer
+	(let ((start (point-max)))
+	  (process-send-string nix-eval--repl (format "%s\n" nix-expr))
+	  (nix-eval--wait-on-output nix-eval--repl)
+	  (let ((output (buffer-substring start (- (point-max) 1))))
+	    (when interactive
+	      (message output))
+	    output))))))
+
+(defun nix-eval--throw-or-print (msg interactive)
+  (if interactive
+      (message msg)
+    (throw 'nix-eval-error msg))
+  nil)
+
+(defun nix-eval--expr-valid-p (nix-expr &optional interactive)
+  (let ((expr (string-trim nix-expr)))
+    (cond
+     ((string= ":" (substring expr 0 1))
+      (nix-eval--throw-or-print "repl-specific commands are not permitted for use in nix-eval" interactive))
+     (t t))))
 
 (defun nix-eval--init-repl ()
   (setq nix-eval--repl
