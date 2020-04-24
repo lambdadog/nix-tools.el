@@ -32,11 +32,11 @@
   (nix-require--apply nix-expr "%s.outPath"))
 
 ;; Currently fails to handle any kind of error intelligently
+;; Will be fixed by implementing #'nix-eval
 (defun nix-require--apply (nix-expr format-string)
   (let ((applied-expr (format format-string (format "(%s)" nix-expr))))
     (substring
      (nix-eval-raw applied-expr)
      1 -1)))
 
-;; TODO: Figure out a way to avoid continuously opening up new processes. Perhaps a persistent nix repl?
 (provide 'nix-require)
