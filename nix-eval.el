@@ -4,10 +4,6 @@
 (require 'ansi-color) ; used for filtering out ansi codes in output
 (require 'subr-x)
 
-(defgroup nix-eval nil
-  "Evaluate nix expressions from elisp"
-  :prefix "nix-eval-")
-
 (setq nix-eval--repl nil)
 (setq nix-eval--repl-finished nil)
 

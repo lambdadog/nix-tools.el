@@ -3,17 +3,6 @@
 ;;; nix-require --- Depend on a nix package inline in elisp
 (require 'nix-eval)
 
-(defgroup nix-require nil
-  "Adds the capability to \"require\" nix derivations from elisp code"
-  :prefix "nix-require-")
-
-(defcustom nix-path (or (getenv "NIX_PATH")
-			 ;; Join on ":"
-			 (concat (getenv "HOME") "/.nix-defexpr/channels:nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixpkgs:/nix/var/nix/profiles/per-user/root/channels"))
-  "The NIX_PATH environmental variable. I've attempted to set this to a reasonable default based on my system, but if it's broken for you, you can either copy-paste the result of `echo $NIX_PATH` or use a package like `exec-path-from-shell` to derive it for you."
-  :type 'string
-  :group 'nix-require)
-
 ;; Stores the active nix-repl
 (setq nix-require--repl nil)
 
@@ -34,7 +23,7 @@
 			       user-emacs-directory
 			       (file-name-nondirectory outpath))
 		     "--no-out-link"))
-	 (build-command (format "NIX_PATH=%s nix-build %s -E %S" nix-path add-root nix-expr)))
+	 (build-command (format "nix-build %s -E %S" add-root nix-expr)))
     (unless (zerop (call-process-shell-command build-command nil nil))
         (error (format "Failed to build derivation for %S" nix-expr)))
       outpath))
