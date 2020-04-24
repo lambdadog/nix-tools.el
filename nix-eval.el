@@ -9,13 +9,14 @@
 
 ;;;###autoload
 (defun nix-eval (nix-expr)
-  "Evaluate a Nix expression and return the response. If you're going to be making many repeated similar calls a recommended optimization is to let-bind 'nix-eval-strict to nil then run 'nix-eval-clean afterwards to allow nix-repl to cache data."
+  "Evaluate a Nix expression and return the response."
   (interactive "MNix expression: ")
   (error "Unimplemented"))
 
 ;;;###autoload
 (defun nix-eval-raw (nix-expr)
-  "Evaluate a Nix expression and return a raw response. All caveats of 'nix-eval apply."
+  "Evaluate a Nix expression and return the raw response as a
+string."
   (interactive "MNix expression: ")
   (nix-eval--eval-internal nix-expr (called-interactively-p 'interactive)))
 

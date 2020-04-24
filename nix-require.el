@@ -8,7 +8,8 @@
 
 ;;;###autoload
 (defmacro nix-require (name nix-expr)
-  "Require a nix derivation from elisp. Takes an absolute path, acting as the nix derivation is its root."
+  "Require a nix derivation from elisp. Takes an absolute path,
+acting as the nix derivation is its root."
   `(defun ,name (&optional path)
      (when (and (stringp path) (not (file-name-absolute-p path)))
        (error (format "Path passed to '%s must be absolute" (quote ,name))))
@@ -16,6 +17,12 @@
 
 ;;;###autoload
 (defun nix-get (nix-expr &optional no-root)
+  "Build a nix derivation and return its store path, adding a
+nix-root to ~/.emacs.d/nix-roots/ (or wherever
+user-emacs-directory is set to in place of ~/.emacs.d). The
+no-root optional argument will disable the adding of roots and
+allow the derivation to be garbage collected next time
+nix-collect-garbage is run."
   (interactive "MNix Expression: ")
   (let* ((outpath (nix-require--get-outpath nix-expr))
 	 (add-root (if (not no-root)
@@ -26,7 +33,9 @@
 	 (build-command (format "nix-build %s -E %S" add-root nix-expr)))
     (unless (zerop (call-process-shell-command build-command nil nil))
         (error (format "Failed to build derivation for %S" nix-expr)))
-      outpath))
+    (if (called-interactively-p 'interactive)
+	(message outpath)
+      outpath)))
 
 (defun nix-require--get-outpath (nix-expr)
   (nix-require--apply nix-expr "%s.outPath"))
