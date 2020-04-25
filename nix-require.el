@@ -3,9 +3,6 @@
 ;;; nix-require --- Depend on a nix package inline in elisp
 (require 'nix-eval)
 
-;; Stores the active nix-repl
-(setq nix-require--repl nil)
-
 ;;;###autoload
 (defmacro nix-require (name nix-expr)
   "Require a nix derivation from elisp. Takes an absolute path,
@@ -38,14 +35,6 @@ nix-collect-garbage is run."
       outpath)))
 
 (defun nix-require--get-outpath (nix-expr)
-  (nix-require--apply nix-expr "%s.outPath"))
-
-;; Currently fails to handle any kind of error intelligently
-;; Will be fixed by implementing #'nix-eval
-(defun nix-require--apply (nix-expr format-string)
-  (let ((applied-expr (format format-string (format "(%s)" nix-expr))))
-    (substring
-     (nix-eval-raw applied-expr)
-     1 -1)))
+  (nix-eval--apply nix-expr "%s.outPath"))
 
 (provide 'nix-require)
