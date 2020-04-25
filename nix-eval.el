@@ -1,7 +1,7 @@
 ;;; -*- lexical-binding: t; -*-
 
 ;;; nix-eval -- Run nix code and receive the results
-(require 'ansi-color) ; used for filtering out ansi codes in output
+(require 'subr-x)
 
 (setq nix-eval--repl nil)
 (setq nix-eval--repl-finished nil)
@@ -82,11 +82,17 @@ string."
 	  (unless (string= "\n" string)
 	    (save-excursion
 	      (goto-char (process-mark proc))
-	      ;; TODO: remove 'ansi-color dependency
-	      (insert (replace-regexp-in-string "\n\n" "\n" (ansi-color-filter-apply string)))
+	      (insert (nix-eval--cleanup-process-output string))
 	      (set-marker (process-mark proc) (point))))
 	  (when moving (goto-char (process-mark proc)))
 	  (when finished (setq nix-eval--repl-finished t)))))))
+
+(defun nix-eval--cleanup-process-output (string)
+  (replace-regexp-in-string ;; get rid of the annoying double newline effect
+   "\n\n" "\n"
+   (replace-regexp-in-string ;; remove ansi escape codes
+    "\e\\[[\x30-\x3F]*[\x20-\x2F]*[\x40-\x7E]" ""
+    string)))
 
 (defun nix-eval--wait-on-output (proc)
   (while (not nix-eval--repl-finished)
