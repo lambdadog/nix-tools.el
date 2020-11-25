@@ -15,9 +15,9 @@
 (defun nix-eval (nix-expr)
   "Evaluate a Nix expression and return the response."
   (interactive "MNix expression: ")
-  (let ((output (nix-eval--process-sexpr
+  (let ((output (nix-eval--unquote (nix-eval--unquote
 		 (nix-eval--eval-internal (nix-eval--as-sexpr nix-expr)
-					  (called-interactively-p 'interactive)))))
+					  (called-interactively-p 'interactive))))))
     (when (called-interactively-p 'interactive)
       (message output))
     output))
@@ -106,7 +106,7 @@ string."
 (defun nix-eval--as-sexpr (nix-expr)
   (format "(import %S).asSexpr %s" nix-eval--nix-lib (format "(%s)" nix-expr)))
 
-(defun nix-eval--process-sexpr (response)
+(defun nix-eval--unquote (response)
   (let ((result (read-from-string response)))
     (if (eq (cdr result) (length response))
 	(car result)
