@@ -8,7 +8,7 @@ using nix shells (implementation in-progress).
 
 ## Modules
 
-### `nix-expr`
+### `nix-eval`
 
 Uses a nix-repl subprocess to run arbitrary nix commands. Useful for
 quickly querying nix information. Nixpkgs is *not* loaded in this
