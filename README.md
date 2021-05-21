@@ -1,13 +1,10 @@
 # Nix Tools
 
-A small toolkit for working with Nix from elisp.
+Your nix pocket-knife in emacs.
 
-Largely intended for use from
-[aether](https://github.com/transitracer/aether) but useful for
-writing elisp code that neatly integrates with nix in general.
-
-Intended more for package authors/emacs power-users than for
-end-users.
+A small suite of emacs packages that make working with nix in emacs
+trivial, from requiring files from nix derivations inline in elisp to
+using nix shells (implementation in-progress).
 
 ## Modules
 
