@@ -6,10 +6,11 @@
 (setq nix-eval--repl nil)
 (setq nix-eval--repl-finished nil)
 
-(setq nix-eval--nix-lib (concat (if load-file-name
-				    (file-name-directory load-file-name)
-				  default-directory)
-				"lib/nix-eval.nix"))
+(defconst nix-eval--asSexpr
+      (let ((dir (if load-file-name
+		     (file-name-directory load-file-name)
+		   default-directory)))
+	(concat dir "lib/asSexpr.nix")))
 
 ;;;###autoload
 (defun nix-eval (nix-expr)
@@ -19,7 +20,7 @@
 		 (nix-eval--eval-internal (nix-eval--as-sexpr nix-expr)
 					  (called-interactively-p 'interactive))))))
     (when (called-interactively-p 'interactive)
-      (message output))
+      (princ output))
     output))
 
 ;;;###autoload
@@ -104,7 +105,7 @@ string."
     (nix-eval applied-expr)))
 
 (defun nix-eval--as-sexpr (nix-expr)
-  (format "(import %S).asSexpr %s" nix-eval--nix-lib (format "(%s)" nix-expr)))
+  (format "import %S %s" nix-eval--asSexpr (format "(%s)" nix-expr)))
 
 (defun nix-eval--unquote (response)
   (let ((result (read-from-string response)))

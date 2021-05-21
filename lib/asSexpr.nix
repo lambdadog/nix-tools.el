@@ -1,4 +1,4 @@
-rec {
+let
   asSexpr = value:
     let
       type = builtins.typeOf value;
@@ -39,4 +39,4 @@ rec {
         [")"]
       ])
     else type;
-}
+in asSexpr
