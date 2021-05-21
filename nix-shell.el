@@ -8,7 +8,7 @@
 ;;; Goals:
 ;; - #'nix-shell
 ;;   + run nix-shell and grab env
-;;   + add into `nix-shell--shells` alist
+;;   + add shell into `nix-shell--shells` alist
 ;;     - indexed by command used to start the shell
 ;;       + so it can be looked up trivially by another invocation
 ;;     - contains:
@@ -16,22 +16,31 @@
 ;;       + relevant environment
 ;;       + list of buffers using said shell
 ;;   + make relevant variables buffer-local in current buffer
-;;     - `process-environment`
-;;     - `exec-path`
-;;     - `eshell-path-env`
+;;     - `process-environment` - entire environment
+;;     - `exec-path` - $PATH
+;;     - `eshell-path-env` - $PATH
+;;     - `shell-file-name` - $SHELL
 ;;   + enable nix-shell-mode with lighter "nix-shell[<shell name>]"
 ;;   + apply environment to local buffer
 ;;
-;; #'nix-shell prompts you whether you want to input a
+;; interactive #'nix-shell prompts you whether you want to input a
 ;;  - list of packages
 ;;  - filepath
 ;;  - existing shell
-;; similar to #'magit-clone-regular
+;; similar to #'magit-clone-regular prompting for url/path/local
 ;;
 ;; Possible to get the rcfile used by nix-shell by setting
-;; `NIX_BUILD_SHELL` to a script that will return the second argument
-;; (when calling nix-shell interactively, so no --run). This could be
-;; useful for eshell, shell, term, ansi-term, etc.
+;; `NIX_BUILD_SHELL` to a script that will return the first argument
+;; (when calling nix-shell uninteractively, which we're doing). This
+;; could be useful for eshell, shell, term, ansi-term, etc.
+;;
+;; Notes for rcfile usage:
+;;  - `explicit-bash-args`
+;;    + Used by `shell`
+;;    + add `--rcfile <rcfile-path>`
+;;  - `BASH_ENV`
+;;    + Will affect `call-process-shell-command`
+;;    + Set to rcfile path
 
 (defconst nix-shell--get-rcfile-script
   (let ((dir (if load-file-name
